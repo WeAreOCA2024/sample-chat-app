@@ -1,10 +1,12 @@
 "use client";
 
-import { getFriendProfileByName, getMyProfileByName, getUserByName } from "@/api";
-import { MyData, Profile } from "@/type";
+import { getChatLogByName, getFriendProfileByName, getMyProfileByName, getUserByName } from "@/api";
+import { ChatLog, Friend, MyData, Profile } from "@/type";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SidebarComponent } from "./components/sidebar";
+import { MyStatusComponent } from "./components/mystatus";
+import { ShowFriendComponent } from "./components/showfriend";
 
 export default function Home() {
   // get name from url
@@ -14,9 +16,10 @@ export default function Home() {
   // use state
   const [myData, setMyData] = useState<MyData[] | null>(null);
   const [myProfile, setMyProfile] = useState<Profile[] | null>(null);
-  const [friendProfile, setFriendProfile] = useState<Profile[] | null>(null);
-  const [msg, setMsg] = useState<string>("");
+  const [friendProfile, setFriendProfile] = useState<Friend[] | null>(null);
   const [serverMode,setServerMode] = useState<string>("dm");
+  const [selectedMyProfile, setSelectedMyProfile] = useState<string>(name);
+  const [chatLogs, setChatLogs] = useState<ChatLog[] | null>(null);
 
   // use effect
   useEffect(() => {
@@ -30,19 +33,26 @@ export default function Home() {
     }
     fetchData();
   }, [name]);
-
-
+  console.log(friendProfile);
   const handleChangeMode = (mode: string) => {
     setServerMode(mode);
   }
-
+  const handleChangeMyProfile = (name: string) => {
+    setSelectedMyProfile(name);
+    if(serverMode == "dm"){
+    }
+  }
   // loading
   if (!myData || !myProfile || !friendProfile) {
     return <div>Loading...</div>
   }
   return (
-    <main>
+    <main className="flex">
       <SidebarComponent onDataPass={handleChangeMode} />
+      <section className="w-96 px-4 bg-neutral-800 h-screen">
+        <MyStatusComponent myProfile={myProfile} selectedProfileName={selectedMyProfile} onChangeMyProfile={handleChangeMyProfile} />
+        <ShowFriendComponent friendProfile={friendProfile} myProfile={myProfile}/>
+      </section>
     </main>
   );
 }

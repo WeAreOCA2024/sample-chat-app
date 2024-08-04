@@ -32,7 +32,8 @@ create Table friends(
    user1_id INT,
    user2_id int,
    user1_pid INT,
-   user2_pid INT
+   user2_pid INT,
+   time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 create Table profile(

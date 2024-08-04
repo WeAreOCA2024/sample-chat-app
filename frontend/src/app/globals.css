@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer components {
+  .iconL {
+    @apply w-12 h-12 rounded-full bg-white;
+  }
+  .iconM {
+    @apply w-10 h-10 rounded-full bg-white;
+  }
+  .iconS {
+    @apply w-8 h-8 rounded-full bg-white;
+  }
+}
