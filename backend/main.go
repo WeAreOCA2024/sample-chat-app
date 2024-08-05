@@ -105,10 +105,11 @@ func main() {
 	})
 
 	// get chat log by name
-	r.GET("/get/chat/name/:name", func(c *gin.Context) {
-		name := c.Param("name")
-		chats := getChatLogByName(db, name)
-		c.JSON(http.StatusOK, chats)
+	r.GET("/get/chat/:myid/:friendid", func(c *gin.Context) {
+		myid, _ := strconv.Atoi(c.Param("myid"))
+		friendid, _ := strconv.Atoi(c.Param("friendid"))
+		chatLog := getChatLog(db, myid, friendid)
+		c.JSON(http.StatusOK, chatLog)
 	})
 
 	port := ":8080"
@@ -224,8 +225,9 @@ func getFriendProfileByProfileId(db *sql.DB, id int) []Friend {
 	return profiles
 }
 
-func getChatLogByName(db *sql.DB, name string) []Chat {
-	rows, err := db.Query("SELECT * FROM chatlog WHERE to_userid IN (SELECT id FROM profile WHERE name=$1) or from_userid IN (SELECT id FROM profile WHERE name=$1)", name)
+// get chat log by my id and friend profile id
+func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
+	rows, err := db.Query("SELECT * FROM chatlog WHERE (from_userid=$1 and to_userid=$2) or (from_userid=$2 and to_userid=$1)", myid, friendid)
 	if err != nil {
 		return nil
 	}

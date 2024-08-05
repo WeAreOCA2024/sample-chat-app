@@ -33,11 +33,9 @@ export const getFriendProfileByProfileId = async (id: string):Promise<Friend[]> 
   return data;
 }
 
-
-
-// get chat log by name
-export const getChatLogByName = async (name:string):Promise<ChatLog[]> => {
-  const res = await fetch(`http://localhost:8080/get/chat/name/${name}`);
+// get chat log by my id and friend profile id
+export const getChatLogByMyIdAndFriendProfileId = async (myId: string, friendId: string):Promise<ChatLog[]> => {
+  const res = await fetch(`http://localhost:8080/get/chat/${myId}/${friendId}`);
   const data = await res.json();
   return data;
 }

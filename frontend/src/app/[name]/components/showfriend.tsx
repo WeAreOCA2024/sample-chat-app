@@ -6,14 +6,15 @@ import { Friend, Profile } from "@/type";
 interface FriendProps {
   friendProfile: Friend[];
   myProfile: Profile[];
+  handleChangeSelectedFriend: (id: number) => void;
 }
 
-export const ShowFriendComponent = ({ friendProfile, myProfile }: FriendProps) => {
+export const ShowFriendComponent = ({ friendProfile, myProfile,handleChangeSelectedFriend }: FriendProps) => {
   const [friendProfiles, setFriendProfiles] = useState<Profile[]>([]);
 
   const ShowFriend = (id: number, name: string) => {
     return (
-      <div key={id} className="flex items-center gap-4">
+      <div key={id} className="flex items-center gap-4" onClick={ () => handleChangeSelectedFriend(id)}>
         <div className="iconM" />
         <p className="text-xl text-neutral-300">{name}</p>
       </div>
