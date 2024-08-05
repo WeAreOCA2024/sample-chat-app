@@ -26,6 +26,14 @@ export const getFriendProfileByName = async (name: string):Promise<Friend[]> => 
   const data = await res.json();
   return data;
 }
+// get friend profile by profile name
+export const getFriendProfileByProfileId = async (id: string):Promise<Friend[]> => {
+  const res = await fetch(`http://localhost:8080/get/friend/profile/id/${id}`);
+  const data = await res.json();
+  return data;
+}
+
+
 
 // get chat log by name
 export const getChatLogByName = async (name:string):Promise<ChatLog[]> => {

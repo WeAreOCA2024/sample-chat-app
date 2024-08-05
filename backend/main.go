@@ -82,7 +82,6 @@ func main() {
 		myProfile := getMyProfileById(db, myId)
 		c.JSON(http.StatusOK, myProfile)
 	})
-
 	// get profile by pid
 	r.GET("/get/profile/pid/:pid", func(c *gin.Context) {
 		pid := c.Param("pid")
@@ -95,6 +94,13 @@ func main() {
 	r.GET("/get/friend/profile/:name", func(c *gin.Context) {
 		name := c.Param("name")
 		friendProfile := getFriendProfileById(db, name)
+		c.JSON(http.StatusOK, friendProfile)
+	})
+
+	// get friend profile by pid
+	r.GET("/get/friend/profile/id/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		friendProfile := getFriendProfileByProfileId(db, id)
 		c.JSON(http.StatusOK, friendProfile)
 	})
 
@@ -185,6 +191,23 @@ func getProfileByPid(db *sql.DB, pid int) []Profile {
 
 func getFriendProfileById(db *sql.DB, name string) []Friend {
 	rows, err := db.Query("SELECT * FROM friends WHERE user1_id IN (select id from users where uname=$1) or user2_id IN (select id from users where uname=$1)", name)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var profiles []Friend
+	for rows.Next() {
+		var profile Friend
+		if err := rows.Scan(&profile.ID, &profile.User1_id, &profile.User2_id, &profile.User1_pid, &profile.User2_pid, &profile.Time); err != nil {
+			return nil
+		}
+		profiles = append(profiles, profile)
+	}
+	return profiles
+}
+func getFriendProfileByProfileId(db *sql.DB, id int) []Friend {
+	rows, err := db.Query("SELECT * FROM friends WHERE user1_pid=$1 or user2_pid=$1", id)
 	if err != nil {
 		return nil
 	}

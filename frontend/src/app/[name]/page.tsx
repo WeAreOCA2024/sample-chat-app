@@ -1,6 +1,6 @@
 "use client";
 
-import { getChatLogByName, getFriendProfileByName, getMyProfileByName, getUserByName } from "@/api";
+import { getChatLogByName, getFriendProfileByName, getFriendProfileByProfileId, getMyProfileByName, getUserByName } from "@/api";
 import { ChatLog, Friend, MyData, Profile } from "@/type";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -37,9 +37,21 @@ export default function Home() {
   const handleChangeMode = (mode: string) => {
     setServerMode(mode);
   }
-  const handleChangeMyProfile = (name: string) => {
-    setSelectedMyProfile(name);
-    if(serverMode == "dm"){
+  const handleChangeMyProfile = async (newName: string) => {
+    setSelectedMyProfile(newName);
+    if(name == newName){
+      const friendProfile = await getFriendProfileByName(name);
+      setFriendProfile(friendProfile);
+      return;
+    }
+    const id = myProfile?.find((profile) => profile.name === newName)?.id;
+    if (id) {
+      const friendProfile = await getFriendProfileByProfileId(id.toString());
+      if (friendProfile) {
+        setFriendProfile(friendProfile);
+      }else{
+        setFriendProfile([]);
+      }
     }
   }
   // loading

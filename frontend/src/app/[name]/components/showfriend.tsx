@@ -35,13 +35,9 @@ export const ShowFriendComponent = ({ friendProfile, myProfile }: FriendProps) =
     fetchProfiles();
   }, [friendProfile, myProfile]);
 
-  if (friendProfiles.length === 0) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="flex flex-col gap-4">
-      {friendProfiles.map((profile) => (
+      {friendProfiles?.map((profile) => (
         ShowFriend(profile.id, profile.name)
       ))}
     </div>

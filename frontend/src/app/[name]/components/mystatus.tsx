@@ -36,7 +36,7 @@ export const MyStatusComponent = ({myProfile,selectedProfileName,onChangeMyProfi
         <p className="text-white h-max text-2xl">{selectedMyProfile}</p>
       </div>
       <div className="flex gap-4 overflow-x-auto pb-5">
-        {myProfile.map((profile) => (
+        {myProfile?.map((profile) => (
           showProfile(profile.id, profile.name)
         ))}
       </div>
