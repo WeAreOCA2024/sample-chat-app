@@ -1,12 +1,13 @@
 "use client";
 
-import { getChatLogByMyIdAndFriendProfileId, getFriendProfileByName, getFriendProfileByProfileId, getMyProfileByName, getUserByName } from "@/api";
+import { getChatLogByMyIdAndFriendProfileId, getFriendProfileByName, getFriendProfileByProfileId, getMyProfileByName, getProfileByPid, getUserByName } from "@/api";
 import { ChatLog, Friend, MyData, Profile } from "@/type";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SidebarComponent } from "./components/sidebar";
 import { MyStatusComponent } from "./components/mystatus";
 import { ShowFriendComponent } from "./components/showfriend";
+import { ChatLogComponent } from "./components/chat";
 
 export default function Home() {
   // get name from url
@@ -17,10 +18,11 @@ export default function Home() {
   const [myData, setMyData] = useState<MyData[] | null>(null);
   const [myProfile, setMyProfile] = useState<Profile[] | null>(null);
   const [friendProfile, setFriendProfile] = useState<Friend[] | null>(null);
-  const [serverMode,setServerMode] = useState<string>("dm");
+  const [serverMode, setServerMode] = useState<string>("dm");
   const [selectedMyProfile, setSelectedMyProfile] = useState<string>(name);
-  const [selectedFriendProfileId, setSelectedFriendProfileId] = useState<number | null>(null);
+  const [selectedFriendProfileId, setselectedFriendProfileId] = useState<number | null>(null);
   const [chatLogs, setChatLogs] = useState<ChatLog[] | null>(null);
+  const [selectedFriendProfile, setSelectedFriendProfile] = useState<Profile | null>(null);
 
   // use effect
   useEffect(() => {
@@ -35,13 +37,26 @@ export default function Home() {
     fetchData();
   }, [name]);
 
+  useEffect(() => {
+    const fetchSelectedFriendProfile = async () => {
+      if (!selectedFriendProfileId) {
+        return;
+      }
+      const data = await getProfileByPid(selectedFriendProfileId);
+      setSelectedFriendProfile(data[0]);
+    }
+    fetchSelectedFriendProfile();
+  }, [selectedFriendProfileId, friendProfile, myProfile]);
+
+  
   // handle
   const handleChangeMode = (mode: string) => {
     setServerMode(mode);
   }
+
   const handleChangeMyProfile = async (newName: string) => {
     setSelectedMyProfile(newName);
-    if(name == newName){
+    if (name === newName) {
       const friendProfile = await getFriendProfileByName(name);
       setFriendProfile(friendProfile);
       return;
@@ -50,31 +65,36 @@ export default function Home() {
     if (id) {
       const friendProfile = await getFriendProfileByProfileId(id.toString());
       if (friendProfile) {
-        if(friendProfile.find((profile) => profile.user1_id != selectedFriendProfileId || profile.user2_id != selectedFriendProfileId)){
-          setSelectedFriendProfileId(null);
+        const selectedFriendInFriendProfile = friendProfile.some(
+          (profile) => profile.user1_pid === selectedFriendProfileId || profile.user2_pid === selectedFriendProfileId
+        );
+        if (!selectedFriendInFriendProfile) {
+          setselectedFriendProfileId(null);
+          setChatLogs(null);
         }
         setFriendProfile(friendProfile);
-      }else{
+      } else {
         setFriendProfile([]);
-        setSelectedFriendProfileId(null);
+        setselectedFriendProfileId(null);
+        setChatLogs(null);
       }
     }
   }
+
   const handleChangeSelectedFriend = async (id: number) => {
-    setSelectedFriendProfileId(id);
+    setselectedFriendProfileId(id);
     if (!myProfile) {
       return;
     }
-    console.log(myProfile[0].id.toString(), id.toString());
     const chatLogs = await getChatLogByMyIdAndFriendProfileId(myProfile[0].id.toString(), id.toString());
     setChatLogs(chatLogs);
-    console.log(chatLogs);
   }
 
   // loading
   if (!myData || !myProfile || !friendProfile) {
     return <div>Loading...</div>
   }
+
   return (
     <main className="flex">
       <SidebarComponent onDataPass={handleChangeMode} />
@@ -82,11 +102,22 @@ export default function Home() {
         <MyStatusComponent myProfile={myProfile} selectedProfileName={selectedMyProfile} onChangeMyProfile={handleChangeMyProfile} />
         {
           serverMode === "dm" ? (
-            <ShowFriendComponent friendProfile={friendProfile} myProfile={myProfile} handleChangeSelectedFriend={handleChangeSelectedFriend} />
+            <ShowFriendComponent friendProfile={friendProfile} myProfile={myProfile} selectedFriendProfileId={selectedFriendProfileId} handleChangeSelectedFriend={handleChangeSelectedFriend} />
           ) : (
             <div>
               <p>Group Chat</p>
-            </div>  
+            </div>
+          )
+        }
+      </section>
+      <section className="h-screen w-full bg-neutral-900">
+        {
+          chatLogs && selectedFriendProfile ? (
+            <ChatLogComponent chatLogs={chatLogs} selectedFriendProfile={selectedFriendProfile} myProfile={myProfile} friend={friendProfile} />
+          ) : (
+            <div>
+              <p>Chat Log</p>
+            </div>
           )
         }
       </section>

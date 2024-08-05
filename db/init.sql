@@ -48,7 +48,8 @@ CREATE TABLE chatlog (
    to_pid INT,
    from_userid INT,
    to_userid INT,
-   msg TEXT
+   msg TEXT,
+   time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 INSERT INTO users (uname,pass) VALUES ('root','root');
 INSERT INTO users (uname,pass) VALUES ('kmjak','admin');

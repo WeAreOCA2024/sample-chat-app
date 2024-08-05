@@ -15,7 +15,7 @@ export const SidebarComponent = ({onDataPass}:{onDataPass:(data:string) => void}
   }
 
   return (
-    <section className="bg-zinc-900 w-16 h-screen py-5 flex flex-col items-center gap-3">
+    <section className="bg-neutral-900 w-20 h-screen py-5 flex flex-col items-center gap-3">
       {content("dm", "💬")}
       {content("server", "👥")}
       {content("notice", "🔔")}

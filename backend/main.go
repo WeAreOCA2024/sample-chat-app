@@ -24,6 +24,7 @@ type Chat struct {
 	From_userid int    `json:"from_userid"`
 	To_userid   int    `json:"to_userid"`
 	Msg         string `json:"msg"`
+	Time        string `json:"time"`
 }
 
 type Profile struct {
@@ -227,7 +228,7 @@ func getFriendProfileByProfileId(db *sql.DB, id int) []Friend {
 
 // get chat log by my id and friend profile id
 func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
-	rows, err := db.Query("SELECT * FROM chatlog WHERE (from_userid=$1 and to_userid=$2) or (from_userid=$2 and to_userid=$1)", myid, friendid)
+	rows, err := db.Query("SELECT * FROM chatlog WHERE (from_userid=$1 and to_pid=$2) or (from_pid=$2 and to_userid=$1) ORDER BY time DESC ", myid, friendid)
 	if err != nil {
 		return nil
 	}
@@ -236,7 +237,7 @@ func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
 	var chats []Chat
 	for rows.Next() {
 		var chat Chat
-		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg); err != nil {
+		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time); err != nil {
 			return nil
 		}
 		chats = append(chats, chat)

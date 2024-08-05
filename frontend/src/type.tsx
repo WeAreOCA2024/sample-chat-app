@@ -25,4 +25,5 @@ export interface ChatLog{
   from_userid: number;
   to_userid: number;
   msg: string;
+  time: string;
 }
