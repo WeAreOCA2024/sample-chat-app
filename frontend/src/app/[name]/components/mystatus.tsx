@@ -13,6 +13,9 @@ export const MyStatusComponent = ({myProfile,selectedProfileName,onChangeMyProfi
   let colorIndex = 0;
   const [selectedMyProfile, setSelectedMyProfile] = useState<string>(selectedProfileName);
   const handleChangeMyProfile = (name: string) => {
+    if(name == selectedMyProfile){
+      return
+    }
     onChangeMyProfile(name);
     setSelectedMyProfile(name);
   }

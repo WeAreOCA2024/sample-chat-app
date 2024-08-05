@@ -33,7 +33,6 @@ export default function Home() {
     }
     fetchData();
   }, [name]);
-  console.log(friendProfile);
   const handleChangeMode = (mode: string) => {
     setServerMode(mode);
   }
@@ -63,7 +62,15 @@ export default function Home() {
       <SidebarComponent onDataPass={handleChangeMode} />
       <section className="w-96 px-4 bg-neutral-800 h-screen">
         <MyStatusComponent myProfile={myProfile} selectedProfileName={selectedMyProfile} onChangeMyProfile={handleChangeMyProfile} />
-        <ShowFriendComponent friendProfile={friendProfile} myProfile={myProfile}/>
+        {
+          serverMode === "dm" ? (
+            <ShowFriendComponent friendProfile={friendProfile} myProfile={myProfile}/>
+            ) : (
+            <div>
+              <p>Group Chat</p>
+            </div>  
+            )
+        }
       </section>
     </main>
   );
