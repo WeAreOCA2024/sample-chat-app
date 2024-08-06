@@ -1,6 +1,7 @@
 import { getProfileByPid } from "@/api";
 import { ChatLog, Friend, Profile } from "@/type";
 import { useEffect, useState } from "react";
+import { ChatFormComponent } from "./chatform";
 
 interface ChatLogProps {
   chatLogs: ChatLog[] | null;
@@ -57,16 +58,23 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
   }
 
   return (
-    <section className="flex flex-col items-center h-5/6">
-      <div className="w-11/12 h-20 flex items-center border-b-2 border-white">
-        <div className="iconL" />
-        <p className="text-white text-4xl ml-3">{selectedFriendProfile?.name}</p>
+    <section className="flex flex-col items-center h-screen pt-3">
+      <div className="w-11/12 min-h-20 flex items-center border-b-2 border-white justify-between">
+        <div className="flex items-center">
+          <div className="iconL" />
+          <p className="text-white text-4xl ml-3">{selectedFriendProfile?.name}</p>
+        </div>
+        <div className="flex items-center text-white text-3xl gap-4">
+          <p onClick={() => alert("未実装")}>☎️</p>
+          <p>三</p>
+        </div>
       </div>
       <div className="w-11/12 flex flex-col-reverse overflow-y-auto h-full gap-4">
         {chatLogs?.map((log) => (
           showChatLog(log)
         ))}
       </div>
+      <ChatFormComponent />
     </section>
   );
 }

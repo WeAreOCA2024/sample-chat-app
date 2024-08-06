@@ -15,13 +15,12 @@ export const ShowFriendComponent = ({ friendProfile, myProfile,selectedFriendPro
 
   const ShowFriend = (id: number, name: string) => {
     return (
-      <div key={id} className={`flex items-center pl-2 py-2 rounded-2xl transition-colors gap-4 ${id == selectedFriendProfileId ? "bg-neutral-600" : null}`} onClick={ () => handleChangeSelectedFriend(id)}>
+      <div key={id} className={`flex items-center pl-3 py-3 rounded-2xl transition-colors gap-4 ${id == selectedFriendProfileId ? "bg-neutral-600" : null}`} onClick={ () => handleChangeSelectedFriend(id)}>
         <div className="iconM" />
         <p className="text-xl text-neutral-300">{name}</p>
       </div>
     );
   }
-
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -38,7 +37,7 @@ export const ShowFriendComponent = ({ friendProfile, myProfile,selectedFriendPro
   }, [friendProfile, myProfile]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
       {friendProfiles?.map((profile) => (
         ShowFriend(profile.id, profile.name)
       ))}
