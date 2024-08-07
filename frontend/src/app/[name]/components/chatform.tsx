@@ -6,19 +6,33 @@ export const ChatFormComponent = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
+    adjustTextareaHeight();
+  };
+
+  const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-      const cursorPosition = textareaRef.current.selectionEnd;
-      const lineHeight = parseInt(getComputedStyle(textareaRef.current).lineHeight);
-      const visibleHeight = textareaRef.current.clientHeight;
-      const scrollHeight = textareaRef.current.scrollHeight;
-      const cursorY = Math.floor(cursorPosition / textareaRef.current.cols) * lineHeight;
-
-      const targetScroll = cursorY - (visibleHeight / 2) + (lineHeight / 4);
-      textareaRef.current.scrollTop = Math.min(scrollHeight, targetScroll);
+      
+      const textarea = textareaRef.current;
+      const lineHeight = parseInt(getComputedStyle(textarea).lineHeight);
+      const cursorPosition = textarea.selectionEnd;
+      const lines = textarea.value.substr(0, cursorPosition).split("\n");
+      const currentLineNumber = lines.length;
+      
+      const visibleLines = Math.floor(textarea.clientHeight / lineHeight);
+      const targetLine = Math.max(0, currentLineNumber - Math.floor(visibleLines / 2));
+      
+      textarea.scrollTop = targetLine * lineHeight;
     }
   };
+
+  useEffect(() => {
+    window.addEventListener('resize', adjustTextareaHeight);
+    return () => {
+      window.removeEventListener('resize', adjustTextareaHeight);
+    };
+  }, []);
 
   return (
     <div className="flex w-11/12 mt-6 mb-12 items-end relative">
@@ -29,6 +43,7 @@ export const ChatFormComponent = () => {
         ref={textareaRef}
         value={text}
         onChange={handleChange}
+        onKeyUp={adjustTextareaHeight}
         className="bg-neutral-700 outline-none text-neutral-400 w-full ml-5 pl-5 pr-24 py-4 rounded-xl resize-none relative text-lg max-h-96 min-h-12 overflow-auto"
         rows={1}
         placeholder="Type a message.."
