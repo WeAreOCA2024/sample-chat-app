@@ -1,4 +1,4 @@
-import { getProfileByPid } from "@/api";
+import { deleteChatLog, getProfileByPid } from "@/api";
 import { ChatLog, Friend, Profile } from "@/type";
 import { useEffect, useState } from "react";
 import { ChatFormComponent } from "./chatform";
@@ -12,6 +12,7 @@ interface ChatLogProps {
 
 export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, friend }: ChatLogProps) => {
   const [usingMyProfile, setUsingMyProfile] = useState<Profile | null>(null);
+  const [editChatLogId, setEditChatLogId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUsingMyProfile = async () => {
@@ -24,6 +25,32 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     }
     fetchUsingMyProfile();
   }, [selectedFriendProfile, myProfile, friend]);
+  
+  const handleEditChatLog = (log: ChatLog, event:React.MouseEvent) => {
+    event.preventDefault();
+    setEditChatLogId(log.id);
+  }
+
+  const handleExecEditOption = (mode: string) => {
+    if(editChatLogId == null){
+      return;
+    }
+    if(mode == "編集"){
+      alert("未実装");
+    }else if(mode == "完全に削除"){
+      deleteChatLog(editChatLogId);
+    }else if(mode == "削除"){
+      alert("未実装");
+    }else if(mode == "コピー"){
+      alert("未実装");
+    }else if(mode == "リアクション"){
+      alert("未実装");
+    }else if(mode == "スレッド"){
+      alert("未実装");
+    }
+    setEditChatLogId(null);
+  }
+
 
   const formatTime = (timeString: string) => {
     const date = new Date(timeString);
@@ -33,6 +60,12 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
       hour12: true 
     });
   };
+
+  const editOption = (content:string) => {
+    return (
+      <p className="text" onClick={() => handleExecEditOption(content)}>{content}</p>
+    );
+  }
 
   const showChatLog = (log: ChatLog) => {
     const formattedMessage = log.msg.split('\n').map((line, index) => (
@@ -44,7 +77,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
 
     if(log.from_pid === selectedFriendProfile.id){
       return (
-        <div key={log.id} className="flex flex-col items-start">
+        <div key={log.id} className="flex justify-start" onContextMenu={(event) => handleEditChatLog(log, event)}>
           <div className="flex items-end gap-2">
             <div className="iconM" />
             <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">
@@ -56,13 +89,35 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
       );
     }else{
       return (
-        <div key={log.id} className="flex flex-col items-end">
-          <div className="flex items-end gap-2">
-            <p><small className="text-neutral-400">{formatTime(log.time)}</small></p>
-            <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">
-              {formattedMessage}
-            </p>
+        <div key={log.id}>
+          <div className="flex justify-end" onContextMenu={(event) => handleEditChatLog(log, event)}>
+            <div className="flex items-end gap-2">
+              <div className="text-white flex flex-col items-end">
+                {editChatLogId === log.id && (
+                  <p className="text-xs">編集中</p>
+                )}
+                <p className="text-neutral-400 text-sm">{formatTime(log.time)}</p>
+              </div>
+              <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">
+                {formattedMessage}
+              </p>
+            </div> 
           </div>
+          {
+            editChatLogId === log.id && (
+              <div className="flex flex-col items-end mt-4">
+                <div className="w-60 text-white text-lg bg-neutral-700 py-2 px-4 rounded-md">
+                  {editOption("編集")}
+                  {editOption("完全に削除")}
+                  {editOption("自分のチャットから削除")}
+                  {editOption("コピー")}
+                  {editOption("リアクション")}
+                  {editOption("スレッド")}
+                  {editOption("キャンセル")}
+                </div>
+              </div>
+            )
+          }
         </div>
       );
     }

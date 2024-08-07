@@ -134,6 +134,12 @@ func main() {
 		}
 	})
 
+	// delete chat log by chat log id
+	r.DELETE("/delete/chat/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		deleteChatLog(db, id)
+	})
+
 	port := ":8080"
 	r.Run(port)
 	select {}
@@ -291,5 +297,12 @@ func postChatLog(db *sql.DB, myProfileId int, FriendProfileId int, myId int, fri
 	_, err := db.Exec("INSERT INTO chatlog (from_pid, to_pid, from_userid, to_userid, msg) VALUES ($1, $2, $3, $4, $5)", myProfileId, FriendProfileId, myId, friendId, msg)
 	if err != nil {
 		log.Fatalf("Failed to insert chat log: %v", err)
+	}
+}
+
+func deleteChatLog(db *sql.DB, id int) {
+	_, err := db.Exec("DELETE FROM chatlog WHERE id=$1", id)
+	if err != nil {
+		log.Fatalf("Failed to delete chat log: %v", err)
 	}
 }

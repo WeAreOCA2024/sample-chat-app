@@ -50,3 +50,10 @@ export const postChatLog = async (myId: string, friendId: string, message: strin
     body: JSON.stringify({ message })
   });
 }
+
+// delete chat log
+export const deleteChatLog = async (id: number):Promise<void> => {
+  await fetch(`http://localhost:8080/delete/chat/${id}`, {
+    method: "DELETE"
+  });
+}
