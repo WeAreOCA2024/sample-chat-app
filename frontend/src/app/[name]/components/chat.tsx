@@ -89,7 +89,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
 
   const editOption = (content:string, log:ChatLog) => {
     return (
-      <p className="text" onClick={() => handleExecEditOption(content, log)}>{content}</p>
+      <p className="hover:bg-neutral-500 px-3 py-2 transition-colors" onClick={() => handleExecEditOption(content, log)}>{content}</p>
     );
   }
 
@@ -132,7 +132,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           {
             editChatLogId === log.id && (
               <div className="flex flex-col items-end mt-4">
-                <div className="w-60 text-white text-lg bg-neutral-700 py-2 px-4 rounded-md">
+                <div className="w-52 text-white text-sm bg-neutral-700 py-2rounded-md">
                   {editOption("編集",log)}
                   {editOption("完全に削除",log)}
                   {editOption("自分のチャットから削除",log)}
