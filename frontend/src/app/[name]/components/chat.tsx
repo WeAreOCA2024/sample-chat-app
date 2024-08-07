@@ -74,7 +74,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           showChatLog(log)
         ))}
       </div>
-      <ChatFormComponent />
+      <ChatFormComponent myProfileId={usingMyProfile?.id} friendProfileId={selectedFriendProfile.id}/>
     </section>
   );
 }

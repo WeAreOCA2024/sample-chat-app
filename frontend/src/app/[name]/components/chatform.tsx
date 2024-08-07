@@ -1,6 +1,12 @@
+import { postChatLog } from "@/api";
 import { useState, useRef, useEffect } from "react";
 
-export const ChatFormComponent = () => {
+interface ChatFormProps {
+  myProfileId: number | undefined;
+  friendProfileId: number;
+}
+
+export const ChatFormComponent = ({myProfileId,friendProfileId}: ChatFormProps) => {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -11,14 +17,13 @@ export const ChatFormComponent = () => {
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-      
       const textarea = textareaRef.current;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+      
       const lineHeight = parseInt(getComputedStyle(textarea).lineHeight);
       const cursorPosition = textarea.selectionEnd;
-      const lines = textarea.value.substr(0, cursorPosition).split("\n");
-      const currentLineNumber = lines.length;
+      const currentLineNumber = textarea.value.slice(0, cursorPosition).split("\n").length;
       
       const visibleLines = Math.floor(textarea.clientHeight / lineHeight);
       const targetLine = Math.max(0, currentLineNumber - Math.floor(visibleLines / 2));
@@ -26,6 +31,21 @@ export const ChatFormComponent = () => {
       textarea.scrollTop = targetLine * lineHeight;
     }
   };
+
+  const handleSend = (msg:string) => {
+    if (text.trim() === "") {
+      return;
+    }
+    if(myProfileId === undefined){
+      return;
+    }
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+    textareaRef.current?.focus();
+    postChatLog(myProfileId.toString(), friendProfileId.toString(), msg);
+    setText("");
+  }
 
   useEffect(() => {
     window.addEventListener('resize', adjustTextareaHeight);
@@ -48,7 +68,7 @@ export const ChatFormComponent = () => {
         rows={1}
         placeholder="Type a message.."
       />
-      <button className="absolute p-2 h-12 w-12 bottom-2 right-2 text-2xl">📤</button>
+      <button className="absolute p-2 h-12 w-12 bottom-2 right-2 text-2xl" onClick={() => handleSend(text)}>📤</button>
     </div>
   );
 };

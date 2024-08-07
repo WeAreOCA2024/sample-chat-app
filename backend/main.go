@@ -113,6 +113,27 @@ func main() {
 		c.JSON(http.StatusOK, chatLog)
 	})
 
+	// post chat log by my profile id and friend profile id
+	r.POST("/post/chat/:myid/:friendid", func(c *gin.Context) {
+		strMyProfileId := c.Param("myid")
+		strFriendProfileId := c.Param("friendid")
+		myProfileId, _ := strconv.Atoi(strMyProfileId)
+		friendProfileId, _ := strconv.Atoi(strFriendProfileId)
+		friend := getFriend(db, myProfileId, friendProfileId)
+		var msg struct {
+			Message string `json:"message"`
+		}
+		if err := c.BindJSON(&msg); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if friend[0].User1_pid == myProfileId {
+			postChatLog(db, myProfileId, friendProfileId, friend[0].User1_id, friend[0].User2_id, msg.Message)
+		} else {
+			postChatLog(db, myProfileId, friendProfileId, friend[0].User2_id, friend[0].User1_id, msg.Message)
+		}
+	})
+
 	port := ":8080"
 	r.Run(port)
 	select {}
@@ -226,6 +247,26 @@ func getFriendProfileByProfileId(db *sql.DB, id int) []Friend {
 	return profiles
 }
 
+// get friend by my profile id and friend profile id
+func getFriend(db *sql.DB, myid int, friendid int) []Friend {
+
+	rows, err := db.Query("SELECT * FROM friends WHERE (user1_pid=$1 and user2_pid=$2) or (user1_pid=$2 and user2_pid=$1)", myid, friendid)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var friends []Friend
+	for rows.Next() {
+		var friend Friend
+		if err := rows.Scan(&friend.ID, &friend.User1_id, &friend.User2_id, &friend.User1_pid, &friend.User2_pid, &friend.Time); err != nil {
+			return nil
+		}
+		friends = append(friends, friend)
+	}
+	return friends
+}
+
 // get chat log by my id and friend profile id
 func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
 	rows, err := db.Query("SELECT * FROM chatlog WHERE (from_userid=$1 and to_pid=$2) or (from_pid=$2 and to_userid=$1) ORDER BY time DESC ", myid, friendid)
@@ -243,4 +284,12 @@ func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
 		chats = append(chats, chat)
 	}
 	return chats
+}
+
+// post chat log
+func postChatLog(db *sql.DB, myProfileId int, FriendProfileId int, myId int, friendId int, msg string) {
+	_, err := db.Exec("INSERT INTO chatlog (from_pid, to_pid, from_userid, to_userid, msg) VALUES ($1, $2, $3, $4, $5)", myProfileId, FriendProfileId, myId, friendId, msg)
+	if err != nil {
+		log.Fatalf("Failed to insert chat log: %v", err)
+	}
 }

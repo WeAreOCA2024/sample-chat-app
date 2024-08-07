@@ -39,3 +39,14 @@ export const getChatLogByMyIdAndFriendProfileId = async (myId: string, friendId:
   const data = await res.json();
   return data;
 }
+
+// post chat log
+export const postChatLog = async (myId: string, friendId: string, message: string):Promise<void> => {
+  await fetch(`http://localhost:8080/post/chat/${myId}/${friendId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message })
+  });
+}
