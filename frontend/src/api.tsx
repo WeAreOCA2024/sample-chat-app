@@ -51,6 +51,17 @@ export const postChatLog = async (myId: string, friendId: string, message: strin
   });
 }
 
+// put chat log
+export const putChatLog = async (id: number, message: string):Promise<void> => {
+  await fetch(`http://localhost:8080/edit/chat/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message })
+  });
+}
+
 // delete chat log
 export const deleteChatLog = async (id: number):Promise<void> => {
   await fetch(`http://localhost:8080/delete/chat/${id}`, {

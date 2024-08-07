@@ -134,6 +134,19 @@ func main() {
 		}
 	})
 
+	// edit chat log by chat log id
+	r.PUT("/edit/chat/:id", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		var msg struct {
+			Message string `json:"message"`
+		}
+		if err := c.BindJSON(&msg); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		putChatLog(db, id, msg.Message)
+	})
+
 	// delete chat log by chat log id
 	r.DELETE("/delete/chat/:id", func(c *gin.Context) {
 		id, _ := strconv.Atoi(c.Param("id"))
@@ -300,6 +313,15 @@ func postChatLog(db *sql.DB, myProfileId int, FriendProfileId int, myId int, fri
 	}
 }
 
+// put chat log
+func putChatLog(db *sql.DB, id int, msg string) {
+	_, err := db.Exec("UPDATE chatlog SET msg=$1 WHERE id=$2", msg, id)
+	if err != nil {
+		log.Fatalf("Failed to update chat log: %v", err)
+	}
+}
+
+// delete chat log
 func deleteChatLog(db *sql.DB, id int) {
 	_, err := db.Exec("DELETE FROM chatlog WHERE id=$1", id)
 	if err != nil {

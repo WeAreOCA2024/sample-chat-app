@@ -1,7 +1,8 @@
-import { deleteChatLog, getProfileByPid } from "@/api";
+import { deleteChatLog, getProfileByPid, putChatLog } from "@/api";
 import { ChatLog, Friend, Profile } from "@/type";
 import { useEffect, useState } from "react";
 import { ChatFormComponent } from "./chatform";
+import { EditChatFormComponent } from "./editchatform";
 
 interface ChatLogProps {
   chatLogs: ChatLog[] | null;
@@ -10,9 +11,16 @@ interface ChatLogProps {
   friend: Friend[];
 }
 
+interface onChangeChatLogProps {
+  id: number | undefined;
+  text: string | undefined;
+}
+
 export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, friend }: ChatLogProps) => {
   const [usingMyProfile, setUsingMyProfile] = useState<Profile | null>(null);
   const [editChatLogId, setEditChatLogId] = useState<number | null>(null);
+  const [ChatOption, setChatOption] = useState<string | null>(null);
+  const [editChatLog, setEditChatLog] = useState<ChatLog | null>(null);
 
   useEffect(() => {
     const fetchUsingMyProfile = async () => {
@@ -29,14 +37,24 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
   const handleEditChatLog = (log: ChatLog, event:React.MouseEvent) => {
     event.preventDefault();
     setEditChatLogId(log.id);
+    setChatOption(null)
   }
 
-  const handleExecEditOption = (mode: string) => {
+  const onChangeChatLog = ({ id, text }: onChangeChatLogProps) => {
+    setEditChatLog(null);
+    setChatOption(null);
+    if (id && text) {
+      putChatLog(id, text);
+    }
+  }
+
+  const handleExecEditOption = (mode: string, log: ChatLog) => {
+    setChatOption(mode);
     if(editChatLogId == null){
       return;
     }
     if(mode == "編集"){
-      alert("未実装");
+      setEditChatLog(log);
     }else if(mode == "完全に削除"){
       deleteChatLog(editChatLogId);
     }else if(mode == "削除"){
@@ -61,9 +79,9 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     });
   };
 
-  const editOption = (content:string) => {
+  const editOption = (content:string, log:ChatLog) => {
     return (
-      <p className="text" onClick={() => handleExecEditOption(content)}>{content}</p>
+      <p className="text" onClick={() => handleExecEditOption(content, log)}>{content}</p>
     );
   }
 
@@ -107,13 +125,13 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
             editChatLogId === log.id && (
               <div className="flex flex-col items-end mt-4">
                 <div className="w-60 text-white text-lg bg-neutral-700 py-2 px-4 rounded-md">
-                  {editOption("編集")}
-                  {editOption("完全に削除")}
-                  {editOption("自分のチャットから削除")}
-                  {editOption("コピー")}
-                  {editOption("リアクション")}
-                  {editOption("スレッド")}
-                  {editOption("キャンセル")}
+                  {editOption("編集",log)}
+                  {editOption("完全に削除",log)}
+                  {editOption("自分のチャットから削除",log)}
+                  {editOption("コピー",log)}
+                  {editOption("リアクション",log)}
+                  {editOption("スレッド",log)}
+                  {editOption("キャンセル",log)}
                 </div>
               </div>
             )
@@ -140,7 +158,13 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           showChatLog(log)
         ))}
       </div>
-      <ChatFormComponent myProfileId={usingMyProfile?.id} friendProfileId={selectedFriendProfile.id}/>
+      {
+        ChatOption === "編集" ? (
+          <EditChatFormComponent id={editChatLog?.id} text={editChatLog?.msg} onChangeChatLog={onChangeChatLog} />
+        ) : (
+          <ChatFormComponent myProfileId={usingMyProfile?.id} friendProfileId={selectedFriendProfile.id}/>
+        )
+      }
     </section>
   );
 }
