@@ -48,6 +48,14 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     }
   }
 
+  const handleCopyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('コピーに失敗しました', err);
+    }
+  }
+
   const handleExecEditOption = (mode: string, log: ChatLog) => {
     setChatOption(mode);
     if(editChatLogId == null){
@@ -60,7 +68,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     }else if(mode == "削除"){
       alert("未実装");
     }else if(mode == "コピー"){
-      alert("未実装");
+      handleCopyText(log.msg);
     }else if(mode == "リアクション"){
       alert("未実装");
     }else if(mode == "スレッド"){
