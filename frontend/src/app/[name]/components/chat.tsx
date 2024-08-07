@@ -35,12 +35,21 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
   };
 
   const showChatLog = (log: ChatLog) => {
+    const formattedMessage = log.msg.split('\n').map((line, index) => (
+      <span key={index}>
+        {line}
+        <br />
+      </span>
+    ));
+
     if(log.from_pid === selectedFriendProfile.id){
       return (
         <div key={log.id} className="flex flex-col items-start">
           <div className="flex items-end gap-2">
             <div className="iconM" />
-            <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">{log.msg}</p>
+            <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">
+              {formattedMessage}
+            </p>
             <p><small className="text-neutral-400">{formatTime(log.time)}</small></p>
           </div>
         </div>
@@ -50,7 +59,9 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
         <div key={log.id} className="flex flex-col items-end">
           <div className="flex items-end gap-2">
             <p><small className="text-neutral-400">{formatTime(log.time)}</small></p>
-            <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">{log.msg}</p>
+            <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">
+              {formattedMessage}
+            </p>
           </div>
         </div>
       );
