@@ -1,4 +1,3 @@
-"use client";
 import { Profile } from "@/type";
 import { useState } from "react";
 

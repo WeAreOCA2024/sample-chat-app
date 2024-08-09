@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import { getProfileByPid } from "@/api";
 import { Friend, Profile } from "@/type";

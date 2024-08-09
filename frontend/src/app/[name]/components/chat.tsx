@@ -161,7 +161,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           <p>三</p>
         </div>
       </div>
-      <div className="w-11/12 flex flex-col-reverse overflow-y-auto h-full gap-4">
+      <div className="w-full px-[calc(100%/24)] pt-3 flex flex-col-reverse overflow-y-auto h-full gap-4">
         {chatLogs?.map((log) => (
           showChatLog(log)
         ))}
