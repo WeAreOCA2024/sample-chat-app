@@ -2,12 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	_ "github.com/lib/pq"
 )
 
@@ -42,8 +44,36 @@ type Friend struct {
 	Time      string `json:"time"`
 }
 
-func main() {
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
+func handleWebSocket(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Printf("Failed to upgrade connection: %v", err)
+		return
+	}
+	defer conn.Close()
+
+	for {
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			log.Printf("Error reading message: %v", err)
+			return
+		}
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			log.Printf("Error writing message: %v", err)
+			return
+		}
+	}
+}
+
+func main() {
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -51,7 +81,7 @@ func main() {
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
 	r.Use(cors.New(config))
 
-	// DB connection~
+	// DB connection
 	dsn := "postgres://myuser:mypassword@db:5432/mydatabase?sslmode=disable"
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
@@ -63,6 +93,11 @@ func main() {
 		log.Fatalf("Failed to ping database: %v", err)
 	}
 
+	// WebSocket endpoint
+	r.GET("/ws", func(c *gin.Context) {
+		fmt.Print("WebSocket connection")
+		handleWebSocket(c)
+	})
 	// get all users
 	r.GET("/get/users", func(c *gin.Context) {
 		users := getAllUsers(db)
@@ -155,8 +190,6 @@ func main() {
 
 	port := ":8080"
 	r.Run(port)
-	select {}
-
 }
 
 func getAllUsers(db *sql.DB) []User {
