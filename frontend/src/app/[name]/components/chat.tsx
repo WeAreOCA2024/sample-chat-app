@@ -1,4 +1,4 @@
-import { deleteChatLog, getProfileByPid, putChatLog } from "@/api";
+import { deleteChatLog, deleteChatlogFromMyScreen, getProfileByPid, putChatLog } from "@/api";
 import { ChatLog, Friend, Profile } from "@/type";
 import { useEffect, useState } from "react";
 import { ChatFormComponent } from "./chatform";
@@ -22,7 +22,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
   const [ChatOption, setChatOption] = useState<string | null>(null);
   const [editChatLog, setEditChatLog] = useState<ChatLog | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
-
+  
   useEffect(() => {
     const fetchUsingMyProfile = async () => {
       const data = friend.find((f) => f.user1_pid === selectedFriendProfile.id || f.user2_pid === selectedFriendProfile.id);
@@ -35,7 +35,6 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     fetchUsingMyProfile();
   }, [selectedFriendProfile, myProfile, friend]);
 
-  // 外部クリックでメニューを閉じる処理
   useEffect(() => {
     const handleClickOutside = () => {
       setEditChatLogId(null);
@@ -77,7 +76,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     }
   };
 
-  const handleExecEditOption = (mode: string, log: ChatLog) => {
+  const handleExecEditOption = async (mode: string, log: ChatLog) => {
     setChatOption(mode);
     if (editChatLogId == null) {
       return;
@@ -85,9 +84,9 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     if (mode === "編集") {
       setEditChatLog(log);
     } else if (mode === "完全に削除") {
-      deleteChatLog(editChatLogId);
-    } else if (mode === "削除") {
-      alert("未実装");
+      await deleteChatLog(editChatLogId);
+    } else if (mode === "自分のチャットから削除") {
+      await deleteChatlogFromMyScreen(editChatLogId, usingMyProfile?.id, log.from_userid);
     } else if (mode === "コピー") {
       handleCopyText(log.msg);
     } else if (mode === "リアクション") {
@@ -116,12 +115,23 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
   };
 
   const showChatLog = (log: ChatLog) => {
+    let isDeleted = false;
     const formattedMessage = log.msg.split("\n").map((line, index) => (
       <span key={index}>
         {line}
         <br />
       </span>
     ));
+
+    if(log.from_pid === usingMyProfile?.id){
+      if(log.delete_from){
+        isDeleted = true;
+      }
+    }else{
+      if(log.delete_to){
+        isDeleted = true;
+      }
+    }
 
     if (log.from_pid === selectedFriendProfile.id) {
       return (
@@ -144,13 +154,13 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
                 {editChatLogId === log.id && <p className="text-xs">編集中</p>}
                 <p className="text-neutral-400 text-sm">{formatTime(log.time)}</p>
               </div>
-              <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">{formattedMessage}</p>
+              <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除された文章です": formattedMessage}</p>
             </div>
           </div>
           {editChatLogId === log.id && menuPosition && (
             <div
               className="flex flex-col items-start mt-4"
-              style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }} // メニューの位置を設定
+              style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}
             >
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
                 {editOption("編集", log)}
@@ -189,5 +199,5 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
         <ChatFormComponent myProfileId={usingMyProfile?.id} friendProfileId={selectedFriendProfile.id} />
       )}
     </section>
-  );
-};
+  )
+}

@@ -27,6 +27,8 @@ type Chat struct {
 	To_userid   int    `json:"to_userid"`
 	Msg         string `json:"msg"`
 	Time        string `json:"time"`
+	Delete_from bool   `json:"delete_from"`
+	Delete_to   bool   `json:"delete_to"`
 }
 
 type Profile struct {
@@ -188,6 +190,18 @@ func main() {
 		deleteChatLog(db, id)
 	})
 
+	// delete chat log from my screen
+	r.PUT("/delete/chat/:id/:profileid/:senderid", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		profileid, _ := strconv.Atoi(c.Param("profileid"))
+		senderid, _ := strconv.Atoi(c.Param("senderid"))
+		if profileid == senderid {
+			deleteChatLogFromMyScreen(db, id, "to")
+		} else {
+			deleteChatLogFromMyScreen(db, id, "from")
+		}
+	})
+
 	port := ":8080"
 	r.Run(port)
 }
@@ -330,7 +344,7 @@ func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
 	var chats []Chat
 	for rows.Next() {
 		var chat Chat
-		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time); err != nil {
+		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time, &chat.Delete_from, &chat.Delete_to); err != nil {
 			return nil
 		}
 		chats = append(chats, chat)
@@ -359,5 +373,13 @@ func deleteChatLog(db *sql.DB, id int) {
 	_, err := db.Exec("DELETE FROM chatlog WHERE id=$1", id)
 	if err != nil {
 		log.Fatalf("Failed to delete chat log: %v", err)
+	}
+}
+
+// delete chat log from my screen
+func deleteChatLogFromMyScreen(db *sql.DB, id int, mode string) {
+	_, err := db.Exec("UPDATE chatlog SET "+mode+"_delete=$1 WHERE id=$2", true, id)
+	if err != nil {
+		log.Fatalf("Failed to delete chat log from my screen: %v", err)
 	}
 }

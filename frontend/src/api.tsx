@@ -68,3 +68,13 @@ export const deleteChatLog = async (id: number):Promise<void> => {
     method: "DELETE"
   });
 }
+
+// delete chat log from my screen
+export const deleteChatlogFromMyScreen = async (id:number, profile_id:number | undefined, sender_profile_id:number):Promise<void> => {
+  await fetch(`http://localhost:8080/delete/chat/${id}/${profile_id}/${sender_profile_id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+}

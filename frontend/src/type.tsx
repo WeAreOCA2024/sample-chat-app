@@ -26,4 +26,6 @@ export interface ChatLog{
   to_userid: number;
   msg: string;
   time: string;
+  delete_from: boolean;
+  delete_to: boolean;
 }

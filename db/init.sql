@@ -49,7 +49,9 @@ CREATE TABLE chatlog (
    from_userid INT,
    to_userid INT,
    msg TEXT,
-   time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   from_delete BOOLEAN DEFAULT FALSE,
+   to_delete BOOLEAN DEFAULT FALSE
 );
 INSERT INTO users (uname,pass) VALUES ('root','root');
 INSERT INTO users (uname,pass) VALUES ('kmjak','admin');
