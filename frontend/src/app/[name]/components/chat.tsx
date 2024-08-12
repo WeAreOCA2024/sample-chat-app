@@ -135,15 +135,32 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
 
     if (log.from_pid === selectedFriendProfile.id) {
       return (
-        <div key={log.id} className="flex justify-start" onContextMenu={(event) => handleEditChatLog(log, event)}>
-          <div className="flex items-end gap-2">
-            <div className="iconM" />
-            <p className="text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl">{formattedMessage}</p>
-            <p>
-              <small className="text-neutral-400">{formatTime(log.time)}</small>
-            </p>
+        <div key={log.id}>
+          <div className="flex justify-start gap-2" onContextMenu={(event) => handleEditChatLog(log, event)}>
+              <div className="iconM"></div>
+            <div className="flex items-end gap-2">
+              <p className={`text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl`}>{formattedMessage}</p>
+              <div className="text-white flex flex-col items-start">
+                {editChatLogId === log.id && <p className="text-xs">編集中</p>}
+                <p className="text-neutral-400 text-sm">{formatTime(log.time)}</p>
+              </div>
+            </div>
           </div>
+          {editChatLogId === log.id && menuPosition && (
+            <div
+              className="flex flex-col items-start mt-4"
+              style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}
+            >
+              <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
+                {editOption("自分のチャットから削除", log)}
+                {editOption("コピー", log)}
+                {editOption("リアクション", log)}
+                {editOption("キャンセル", log)}
+              </div>
+            </div>
+          )}
         </div>
+
       );
     } else {
       return (
@@ -168,7 +185,6 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
                 {editOption("自分のチャットから削除", log)}
                 {editOption("コピー", log)}
                 {editOption("リアクション", log)}
-                {editOption("スレッド", log)}
                 {editOption("キャンセル", log)}
               </div>
             </div>
