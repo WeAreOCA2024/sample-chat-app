@@ -1,4 +1,4 @@
-import { deleteChatLog, deleteChatlogFromMyScreen, getProfileByPid, putChatLog } from "@/api";
+import { deleteChatLog, deleteChatlogFromMyScreen, getProfileByPid, putChatLog, restoreChatlogFromMyScreen } from "@/api";
 import { ChatLog, Friend, Profile } from "@/type";
 import { useEffect, useState } from "react";
 import { ChatFormComponent } from "./chatform";
@@ -86,7 +86,9 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     } else if (mode === "完全に削除") {
       await deleteChatLog(editChatLogId);
     } else if (mode === "自分のチャットから削除") {
-      await deleteChatlogFromMyScreen(editChatLogId, usingMyProfile?.id, log.from_userid);
+      await deleteChatlogFromMyScreen(editChatLogId, usingMyProfile?.id, log.from_pid);
+    }else if(mode == "メッセージの復元"){
+      await restoreChatlogFromMyScreen(editChatLogId,usingMyProfile?.id,log.from_pid);
     } else if (mode === "コピー") {
       handleCopyText(log.msg);
     } else if (mode === "リアクション") {
@@ -139,7 +141,8 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           <div className="flex justify-start gap-2" onContextMenu={(event) => handleEditChatLog(log, event)}>
               <div className="iconM"></div>
             <div className="flex items-end gap-2">
-              <p className={`text-white text-lg bg-neutral-700 py-2 px-4 rounded-2xl`}>{formattedMessage}</p>
+            <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除した文章です": formattedMessage}</p>
+
               <div className="text-white flex flex-col items-start">
                 {editChatLogId === log.id && <p className="text-xs">編集中</p>}
                 <p className="text-neutral-400 text-sm">{formatTime(log.time)}</p>
@@ -152,7 +155,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
               style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}
             >
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
-                {editOption("自分のチャットから削除", log)}
+                {isDeleted ? editOption("メッセージの復元",log) : editOption("自分のチャットから削除", log)}
                 {editOption("コピー", log)}
                 {editOption("リアクション", log)}
                 {editOption("キャンセル", log)}
@@ -171,7 +174,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
                 {editChatLogId === log.id && <p className="text-xs">編集中</p>}
                 <p className="text-neutral-400 text-sm">{formatTime(log.time)}</p>
               </div>
-              <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除された文章です": formattedMessage}</p>
+              <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除した文章です": formattedMessage}</p>
             </div>
           </div>
           {editChatLogId === log.id && menuPosition && (
@@ -182,7 +185,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
                 {editOption("編集", log)}
                 {editOption("完全に削除", log)}
-                {editOption("自分のチャットから削除", log)}
+                {isDeleted ? editOption("メッセージの復元",log) : editOption("自分のチャットから削除", log)}
                 {editOption("コピー", log)}
                 {editOption("リアクション", log)}
                 {editOption("キャンセル", log)}

@@ -196,9 +196,21 @@ func main() {
 		profileid, _ := strconv.Atoi(c.Param("profileid"))
 		senderid, _ := strconv.Atoi(c.Param("senderid"))
 		if profileid == senderid {
-			deleteChatLogFromMyScreen(db, id, "to")
-		} else {
 			deleteChatLogFromMyScreen(db, id, "from")
+		} else {
+			deleteChatLogFromMyScreen(db, id, "to")
+		}
+	})
+
+	// restore chat log to my screen
+	r.PUT("/restore/chat/:id/:profileid/:senderid", func(c *gin.Context) {
+		id, _ := strconv.Atoi(c.Param("id"))
+		profileid, _ := strconv.Atoi(c.Param("profileid"))
+		senderid, _ := strconv.Atoi(c.Param("senderid"))
+		if profileid == senderid {
+			restoreChatLogToMyScreen(db, id, "from")
+		} else {
+			restoreChatLogToMyScreen(db, id, "to")
 		}
 	})
 
@@ -381,5 +393,13 @@ func deleteChatLogFromMyScreen(db *sql.DB, id int, mode string) {
 	_, err := db.Exec("UPDATE chatlog SET "+mode+"_delete=$1 WHERE id=$2", true, id)
 	if err != nil {
 		log.Fatalf("Failed to delete chat log from my screen: %v", err)
+	}
+}
+
+// restore chat log to my screen
+func restoreChatLogToMyScreen(db *sql.DB, id int, mode string) {
+	_, err := db.Exec("UPDATE chatlog SET "+mode+"_delete=$1 WHERE id=$2", false, id)
+	if err != nil {
+		log.Fatalf("Failed to restore chat log to my screen: %v", err)
 	}
 }

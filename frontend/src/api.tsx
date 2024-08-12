@@ -78,3 +78,13 @@ export const deleteChatlogFromMyScreen = async (id:number, profile_id:number | u
     }
   });
 }
+
+// restore chat log from my screen
+export const restoreChatlogFromMyScreen = async (id:number, profile_id:number | undefined, sender_profile_id:number):Promise<void> => {
+  await fetch(`http://localhost:8080/restore/chat/${id}/${profile_id}/${sender_profile_id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+}
