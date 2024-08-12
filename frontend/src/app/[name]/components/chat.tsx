@@ -148,7 +148,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           </div>
           {editChatLogId === log.id && menuPosition && (
             <div
-              className="flex flex-col items-start mt-4"
+              className="flex flex-col items-start mt-4 z-10"
               style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}
             >
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
@@ -176,7 +176,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
           </div>
           {editChatLogId === log.id && menuPosition && (
             <div
-              className="flex flex-col items-start mt-4"
+              className="flex flex-col items-start mt-4 z-10"
               style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}
             >
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">

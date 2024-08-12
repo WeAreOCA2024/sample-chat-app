@@ -55,7 +55,7 @@ export const ChatFormComponent = ({myProfileId,friendProfileId}: ChatFormProps) 
   }, []);
 
   return (
-    <div className="flex w-11/12 mt-6 mb-12 items-end relative">
+    <div className="flex w-11/12 mt-6 mb-12 items-end relative z-0">
       <div className="w-12 h-12 text-3xl bg-neutral-700 text-neutral-400 flex items-center justify-center rounded-full shrink-0">
         <p>＋</p>
       </div>
