@@ -112,7 +112,7 @@ export default function Home() {
       </section>
       <section className="h-screen w-full bg-neutral-900">
         {
-          chatLogs && selectedFriendProfile ? (
+          selectedFriendProfile ? (
             <ChatLogComponent chatLogs={chatLogs} selectedFriendProfile={selectedFriendProfile} myProfile={myProfile} friend={friendProfile} />
           ) : (
             <div>

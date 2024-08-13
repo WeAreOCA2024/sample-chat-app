@@ -20,15 +20,17 @@ type User struct {
 }
 
 type Chat struct {
-	ID          int    `json:"id"`
-	From        int    `json:"from_pid"`
-	To          int    `json:"to_pid"`
-	From_userid int    `json:"from_userid"`
-	To_userid   int    `json:"to_userid"`
-	Msg         string `json:"msg"`
-	Time        string `json:"time"`
-	Delete_from bool   `json:"delete_from"`
-	Delete_to   bool   `json:"delete_to"`
+	ID            int     `json:"id"`
+	From          int     `json:"from_pid"`
+	To            int     `json:"to_pid"`
+	From_userid   int     `json:"from_userid"`
+	To_userid     int     `json:"to_userid"`
+	Msg           string  `json:"msg"`
+	Time          string  `json:"time"`
+	Delete_from   bool    `json:"delete_from"`
+	Delete_to     bool    `json:"delete_to"`
+	From_reaction *string `json:"from_reaction"`
+	To_reaction   *string `json:"to_reaction"`
 }
 
 type Profile struct {
@@ -214,6 +216,14 @@ func main() {
 		}
 	})
 
+	// add reaction to chat log
+	r.PUT("/change/reaction/chat/:chatid/:profileid/:reaction", func(c *gin.Context) {
+		chatid, _ := strconv.Atoi(c.Param("chatid"))
+		profileid, _ := strconv.Atoi(c.Param("profileid"))
+		reaction := c.Param("reaction")
+		putReactionToChatLog(db, chatid, reaction, profileid)
+	})
+
 	port := ":8080"
 	r.Run(port)
 }
@@ -347,7 +357,7 @@ func getFriend(db *sql.DB, myid int, friendid int) []Friend {
 
 // get chat log by my id and friend profile id
 func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
-	rows, err := db.Query("SELECT * FROM chatlog WHERE (from_userid=$1 and to_pid=$2) or (from_pid=$2 and to_userid=$1) ORDER BY time DESC ", myid, friendid)
+	rows, err := db.Query("SELECT * FROM chatlog WHERE (from_userid=$1 and to_pid=$2) or (from_pid=$2 and to_userid=$1) ORDER BY time DESC", myid, friendid)
 	if err != nil {
 		return nil
 	}
@@ -356,7 +366,7 @@ func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
 	var chats []Chat
 	for rows.Next() {
 		var chat Chat
-		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time, &chat.Delete_from, &chat.Delete_to); err != nil {
+		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time, &chat.Delete_from, &chat.Delete_to, &chat.From_reaction, &chat.To_reaction); err != nil {
 			return nil
 		}
 		chats = append(chats, chat)
@@ -401,5 +411,17 @@ func restoreChatLogToMyScreen(db *sql.DB, id int, mode string) {
 	_, err := db.Exec("UPDATE chatlog SET "+mode+"_delete=$1 WHERE id=$2", false, id)
 	if err != nil {
 		log.Fatalf("Failed to restore chat log to my screen: %v", err)
+	}
+}
+
+// put reaction to chat log
+func putReactionToChatLog(db *sql.DB, id int, reaction string, profileId int) {
+	_, err := db.Exec("UPDATE chatlog SET from_reaction=$1 WHERE id=$2 and from_pid=$3", reaction, id, profileId)
+	if err != nil {
+		log.Fatalf("Failed to put reaction to chat log: %v", err)
+	}
+	_, err = db.Exec("UPDATE chatlog SET to_reaction=$1 WHERE id=$2 and to_pid=$3", reaction, id, profileId)
+	if err != nil {
+		log.Fatalf("Failed to put reaction to chat log: %v", err)
 	}
 }
