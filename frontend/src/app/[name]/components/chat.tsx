@@ -156,7 +156,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
             >
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
                 {isDeleted ? editOption("メッセージの復元",log) : editOption("自分のチャットから削除", log)}
-                {editOption("コピー", log)}
+                {!isDeleted && editOption("コピー", log)}
                 {editOption("リアクション", log)}
                 {editOption("キャンセル", log)}
               </div>

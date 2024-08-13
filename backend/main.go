@@ -20,15 +20,17 @@ type User struct {
 }
 
 type Chat struct {
-	ID          int    `json:"id"`
-	From        int    `json:"from_pid"`
-	To          int    `json:"to_pid"`
-	From_userid int    `json:"from_userid"`
-	To_userid   int    `json:"to_userid"`
-	Msg         string `json:"msg"`
-	Time        string `json:"time"`
-	Delete_from bool   `json:"delete_from"`
-	Delete_to   bool   `json:"delete_to"`
+	ID            int    `json:"id"`
+	From          int    `json:"from_pid"`
+	To            int    `json:"to_pid"`
+	From_userid   int    `json:"from_userid"`
+	To_userid     int    `json:"to_userid"`
+	Msg           string `json:"msg"`
+	Time          string `json:"time"`
+	Delete_from   bool   `json:"delete_from"`
+	Delete_to     bool   `json:"delete_to"`
+	From_reaction int    `json:"from_reaction"`
+	To_reaction   int    `json:"to_reaction"`
 }
 
 type Profile struct {
@@ -356,7 +358,7 @@ func getChatLog(db *sql.DB, myid int, friendid int) []Chat {
 	var chats []Chat
 	for rows.Next() {
 		var chat Chat
-		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time, &chat.Delete_from, &chat.Delete_to); err != nil {
+		if err := rows.Scan(&chat.ID, &chat.From, &chat.To, &chat.From_userid, &chat.To_userid, &chat.Msg, &chat.Time, &chat.Delete_from, &chat.Delete_to, &chat.From_reaction, &chat.To_reaction); err != nil {
 			return nil
 		}
 		chats = append(chats, chat)

@@ -28,4 +28,6 @@ export interface ChatLog{
   time: string;
   delete_from: boolean;
   delete_to: boolean;
+  from_reaction: number;
+  to_reaction: number;
 }
