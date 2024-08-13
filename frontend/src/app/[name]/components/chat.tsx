@@ -1,4 +1,4 @@
-import { deleteChatLog, deleteChatlogFromMyScreen, getProfileByPid, putChatLog, restoreChatlogFromMyScreen } from "@/api";
+import { deleteChatLog, deleteChatlogFromMyScreen, getProfileByPid, putChatLog, putReaction, restoreChatlogFromMyScreen } from "@/api";
 import { ChatLog, Friend, Profile } from "@/type";
 import { useEffect, useState } from "react";
 import { ChatFormComponent } from "./chatform";
@@ -17,11 +17,13 @@ interface onChangeChatLogProps {
 }
 
 export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, friend }: ChatLogProps) => {
+  const reactionEmojis = ["👍", "❤️", "😂", "😮", "😢", "😠"];
   const [usingMyProfile, setUsingMyProfile] = useState<Profile | null>(null);
   const [editChatLogId, setEditChatLogId] = useState<number | null>(null);
   const [ChatOption, setChatOption] = useState<string | null>(null);
   const [editChatLog, setEditChatLog] = useState<ChatLog | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isReactionId, setisReactionId] = useState<number|null>(null);
   
   useEffect(() => {
     const fetchUsingMyProfile = async () => {
@@ -60,6 +62,10 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     setMenuPosition({ x: event.clientX - 104, y: event.clientY });
   };
 
+  const handleAddReaction = (id:number,reaction: string) => { 
+    putReaction(id,reaction,usingMyProfile?.id);
+    setisReactionId(null);
+  }
   const onChangeChatLog = ({ id, text }: onChangeChatLogProps) => {
     setEditChatLog(null);
     setChatOption(null);
@@ -92,7 +98,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     } else if (mode === "コピー") {
       handleCopyText(log.msg);
     } else if (mode === "リアクション") {
-      alert("未実装");
+      setisReactionId(log.id);
     } else if (mode === "スレッド") {
       alert("未実装");
     }
@@ -115,6 +121,38 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
       </p>
     );
   };
+
+  const ReactionSelector = (id:number) => {
+    return (
+      <div className="flex gap-2 mt-1"> 
+        {reactionEmojis.map((emoji, index) => (
+          <p key={index} className="text-xl hover:bg-neutral-600 rounded-sm w-7 h-7 flex justify-center items-center cursor-pointer" onClick={() => handleAddReaction(id,emoji)}>
+            {emoji}
+          </p>
+        ))}
+      </div>
+    );
+  };
+
+  const showReaction = (from_reaction : string | null,to_reaction : string | null, isMyMessage : boolean) => {
+    return (
+      (from_reaction || to_reaction )&& (
+        <div className={`flex ${isMyMessage ? "justify-end" : "justify-start"}`}>
+          {from_reaction == to_reaction ? (
+            <div className="pr-3 text-xl">
+              <p className="flex items-start gap-1">{from_reaction}<span className="text-white text-xs">2</span></p>
+            </div>
+            ):(
+              <div className="flex min-w-8 py-1 pr-3 gap-1 text-xl">
+                <p>{from_reaction}</p>
+                <p>{to_reaction}</p>
+              </div>
+            )
+          }
+        </div>
+      )
+    )
+  }
 
   const showChatLog = (log: ChatLog) => {
     let isDeleted = false;
@@ -139,21 +177,22 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
       return (
         <div key={log.id}>
           <div className="flex justify-start gap-2" onContextMenu={(event) => handleEditChatLog(log, event)}>
-              <div className="iconM"></div>
+            <div className="iconM"/>
             <div className="flex items-end gap-2">
-            <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除した文章です": formattedMessage}</p>
-
+              <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除した文章です": formattedMessage}</p>
               <div className="text-white flex flex-col items-start">
                 {editChatLogId === log.id && <p className="text-xs">編集中</p>}
                 <p className="text-neutral-400 text-sm">{formatTime(log.time)}</p>
               </div>
             </div>
           </div>
+          <div>
+            {isReactionId === log.id ? ReactionSelector(log.id) : showReaction(log.from_reaction,log.to_reaction, false)}
+          </div>
           {editChatLogId === log.id && menuPosition && (
             <div
               className="flex flex-col items-start mt-4 z-10"
-              style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}
-            >
+              style={{ position: "absolute", left: menuPosition.x, top: menuPosition.y }}>
               <div className="w-52 text-white text-sm bg-neutral-700 rounded-md border-2 border-neutral-400">
                 {isDeleted ? editOption("メッセージの復元",log) : editOption("自分のチャットから削除", log)}
                 {!isDeleted && editOption("コピー", log)}
@@ -163,7 +202,6 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
             </div>
           )}
         </div>
-
       );
     } else {
       return (
@@ -176,6 +214,9 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
               </div>
               <p className={`text-white text-lg ${isDeleted ? null : "bg-neutral-700"} py-2 px-4 rounded-2xl`}>{isDeleted ? "削除した文章です": formattedMessage}</p>
             </div>
+          </div>
+          <div>
+            {isReactionId === log.id ? ReactionSelector(log.id) : showReaction(log.from_reaction,log.to_reaction, true)}
           </div>
           {editChatLogId === log.id && menuPosition && (
             <div

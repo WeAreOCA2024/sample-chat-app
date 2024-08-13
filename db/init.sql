@@ -52,8 +52,8 @@ CREATE TABLE chatlog (
    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    from_delete BOOLEAN DEFAULT FALSE,
    to_delete BOOLEAN DEFAULT FALSE,
-   from_reaction INT DEFAULT 0,
-   to_reaction INT DEFAULT 0
+   from_reaction VARCHAR(100) DEFAULT NULL,
+   to_reaction VARCHAR(100) DEFAULT NULL
 );
 INSERT INTO users (uname,pass) VALUES ('root','root');
 INSERT INTO users (uname,pass) VALUES ('kmjak','admin');

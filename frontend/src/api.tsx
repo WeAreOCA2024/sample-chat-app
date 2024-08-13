@@ -88,3 +88,13 @@ export const restoreChatlogFromMyScreen = async (id:number, profile_id:number | 
     }
   });
 }
+
+// put reaction
+export const putReaction = async (id: number, reaction: string, profile_id: number | undefined):Promise<void> => {
+  await fetch(`http://localhost:8080/change/reaction/chat/${id}/${profile_id}/${reaction}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+}
