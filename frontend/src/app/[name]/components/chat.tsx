@@ -122,11 +122,11 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     );
   };
 
-  const ReactionSelector = (id:number) => {
+  const ReactionSelector = (id:number,isMine:boolean,reaction:string) => {
     return (
-      <div className="flex gap-2 mt-1"> 
+      <div className={`flex gap-2 mt-1 ${isMine ? "justify-end" : "justify-start"}`}> 
         {reactionEmojis.map((emoji, index) => (
-          <p key={index} className="text-xl hover:bg-neutral-600 rounded-sm w-7 h-7 flex justify-center items-center cursor-pointer" onClick={() => handleAddReaction(id,emoji)}>
+          <p key={index} className={`text-xl  rounded-sm w-7 h-7 flex justify-center items-center cursor-pointer transition-colors ${reaction == emoji ? "bg-green-600 hover:bg-green-700" : "hover:bg-neutral-700"}`} onClick={() => handleAddReaction(id,emoji)}>
             {emoji}
           </p>
         ))}
@@ -187,7 +187,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
             </div>
           </div>
           <div>
-            {isReactionId === log.id ? ReactionSelector(log.id) : showReaction(log.from_reaction,log.to_reaction, false)}
+            {isReactionId === log.id ? ReactionSelector(log.id,false,log.to_reaction) : showReaction(log.from_reaction,log.to_reaction, false)}
           </div>
           {editChatLogId === log.id && menuPosition && (
             <div
@@ -216,7 +216,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
             </div>
           </div>
           <div>
-            {isReactionId === log.id ? ReactionSelector(log.id) : showReaction(log.from_reaction,log.to_reaction, true)}
+            {isReactionId === log.id ? ReactionSelector(log.id,true,log.from_reaction) : showReaction(log.from_reaction,log.to_reaction, true)}
           </div>
           {editChatLogId === log.id && menuPosition && (
             <div
