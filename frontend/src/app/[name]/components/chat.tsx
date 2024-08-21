@@ -24,7 +24,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
   const [editChatLog, setEditChatLog] = useState<ChatLog | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
   const [isReactionId, setisReactionId] = useState<number|null>(null);
-  
+
   useEffect(() => {
     const fetchUsingMyProfile = async () => {
       const data = friend.find((f) => f.user1_pid === selectedFriendProfile.id || f.user2_pid === selectedFriendProfile.id);
@@ -62,7 +62,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
     setMenuPosition({ x: event.clientX - 104, y: event.clientY });
   };
 
-  const handleAddReaction = (id:number,reaction: string) => { 
+  const handleAddReaction = (id:number,reaction: string) => {
     putReaction(id,reaction,usingMyProfile?.id);
     setisReactionId(null);
   }
@@ -124,7 +124,7 @@ export const ChatLogComponent = ({ chatLogs, selectedFriendProfile, myProfile, f
 
   const ReactionSelector = (id:number,isMine:boolean,reaction:string) => {
     return (
-      <div className={`flex gap-2 mt-1 ${isMine ? "justify-end" : "justify-start"}`}> 
+      <div className={`flex gap-2 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
         {reactionEmojis.map((emoji, index) => (
           <p key={index} className={`text-xl  rounded-sm w-7 h-7 flex justify-center items-center cursor-pointer transition-colors ${reaction == emoji ? "bg-green-600 hover:bg-green-700" : "hover:bg-neutral-700"}`} onClick={() => handleAddReaction(id,emoji)}>
             {emoji}
