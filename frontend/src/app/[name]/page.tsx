@@ -48,7 +48,6 @@ export default function Home() {
     fetchSelectedFriendProfile();
   }, [selectedFriendProfileId, friendProfile, myProfile]);
 
-  
   // handle
   const handleChangeMode = (mode: string) => {
     setServerMode(mode);
